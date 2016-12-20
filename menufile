@@ -1,0 +1,2 @@
+Setting! bash -c on_setting
+Close! bash -c on_exit
