@@ -66,8 +66,12 @@ CONV(){
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
-	    if [ -n "$(echo "$file"|egrep "time=")" ] && [ ! -n "$(echo "$file"|egrep "fps=0")" ] ; then
-		TIME="${MASS[7]:5:8}"
+	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
+		if [ -n "$(echo ${MASS[7]}|egrep time)" ] ; then 
+			TIME="${MASS[7]:5:8}"
+		else
+			TIME="${MASS[6]:5:8}"
+		fi
 		echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 
