@@ -1,0 +1,10 @@
+This program uses the Yad dialogue and ffmpeg or avconv program to capture video from the screen.
+When you run the program xgrab.sh appears system tray icon, management of the program going through it.
+It is recommended to use a script to run the program:
+
+#!/bin/bash
+
+cd PATH/xgrab
+./xgrab.sh
+
+For the selection of the video capture command is uses "command" file.
