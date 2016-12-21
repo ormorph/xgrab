@@ -60,18 +60,14 @@ CONV(){
 	"$OUTDIR/$FILE.mp4" 2>&1 | stdbuf -o0 tr \
 	'\r' '\n'|while read file
 	do
-		MASS=($file)
+		MASS=(${file//fps=/fps= })
 
 	    if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then 
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
 	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
-		if [ -n "$(echo ${MASS[7]}|egrep time)" ] ; then 
-			TIME="${MASS[7]:5:8}"
-		else
-			TIME="${MASS[6]:5:8}"
-		fi
+		TIME="${MASS[7]:5:8}"
 		echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 
