@@ -43,6 +43,7 @@ $COMMAND $OPTION_GRAB $OUTDIR/$NAME.mp4 >/dev/null 2>&1 &
 # running process pid
 PID="$!"
 echo $PID >$PIPE.pid
+sleep 1s
 
 while true
 do
