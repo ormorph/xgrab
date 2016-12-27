@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #sets the processing command
 source $GRAB_COMMAND
@@ -27,14 +27,50 @@ FILE="VID_$NAME"
 OPT_GRAB="$(cat $FILE_SET|sed '1!D')"
 OPT_CHECK1="$(cat $FILE_SET|sed '2!D')"
 OPT_SOUND="$(cat $FILE_SET|sed '3!D')"
+OPT_DISPL="$(cat $FILE_SET|sed '4!D')"
 OPT_DEC="$(cat $FILE_COMP|sed '1!D')"
 OPT_CHECK2="$(cat $FILE_COMP|sed '2!D')"
 
+
 #Option x11 grab. Sound - pactl list short sources
+if [ $OPT_DISPL = "size" ] ; then
+	INFO_DISP="$(xrectsel)"
+	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
+	WIN_XY=$(echo $INFO_DISP | grep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
+	TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
+	TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+	TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
+	TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+
+        OPT_DISP="$DISPLAY+$WIN_XY"
+elif [ $OPT_DISPL = "window" ] ; then
+	INFO_DISP="$(xwininfo|grep geometry)"
+	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
+	WIN_XY=$(echo $INFO_DISP | egrep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
+        TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
+        TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+        TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
+        TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+
+        OPT_DISP="$DISPLAY+$WIN_XY"
+else 
+        TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
+        TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+        TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
+        TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+
+	OPT_DISP=$DISPLAY
+fi
+
+OPT_DEC="${OPT_DEC//TARGET_WIDTH/$TARGET_WIDTH}"
+OPT_DEC="${OPT_DEC//TARGET_HEIGHT/$TARGET_HEIGHT}"
+
 if [ "$OPT_CHECK1" = "TRUE" ] ; then 
         OPTION_GRAB="$OPT_SOUND ${OPT_GRAB//\$SCR_SIZE/$SCR_SIZE}"
+	OPTION_GRAB="${OPTION_GRAB//\$DISPLAY/$OPT_DISP}"
 else
         OPTION_GRAB="${OPT_GRAB//\$SCR_SIZE/$SCR_SIZE}"
+	OPTION_GRAB="${OPTION_GRAB//\$DISPLAY/$OPT_DISP}"
 fi
 
 # the command grabbing video
@@ -55,20 +91,19 @@ done
 
 rm $PIPE.pid
 
-# ffmpeg stream processing function
+COMMAND_COMP="$COMMAND -i $OUTDIR/$NAME.mp4 $OPT_DEC  $OUTDIR/$FILE.mp4"
+
 CONV(){
-	$COMMAND -i "$OUTDIR/$NAME.mp4" $OPT_DEC \
-	"$OUTDIR/$FILE.mp4" 2>&1 | stdbuf -o0 tr \
-	'\r' '\n'|while read file
+	$COMMAND_COMP 2>&1 |stdbuf -o0 tr '\r' '\n' | while read file
 	do
-		MASS=(${file//fps=/fps= })
+		MASS=($file)
 
 	    if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then 
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
 	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
-		TIME="${MASS[7]:5:8}"
+		TIME="$(echo $file | egrep -oE  '+[0-9]+:+[0-9]+:+[0-9][0-9]')"
 		echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 
@@ -90,12 +125,8 @@ CONV(){
 
 # avconv stream processing function
 CONV2(){
-	$COMMAND -i "$OUTDIR/$NAME.mp4" -acodec libmp3lame \
-	-ab 128k -ac 2 -vcodec libx264 -crf 22 -threads 0 \
-	"$OUTDIR/$FILE.mp4" 2>&1| stdbuf -o0 tr \
-	'\r' '\n'|while read file
+	$COMMAND_COMP  2>&1| stdbuf -o0 tr '\r' '\n' | while read file
 	do
-		file=${file//./ }
 		MASS=($file)
 
 		if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then 
@@ -105,7 +136,7 @@ CONV2(){
 	    fi
 
 	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
-		TIME="${MASS[8]:5}"
+		TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
 
                 HMS1=(${DURATION//:/ })
 
@@ -138,6 +169,5 @@ if [ "$OPT_CHECK2" = "TRUE" ] ; then
 	--title="videofile processing" \
 	--text="Compression process start" \
 	--percentage=0
-
 	rm $OUTDIR/$NAME.mp4
 fi

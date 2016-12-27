@@ -71,13 +71,22 @@ on_setting() {
     OPT_S1="$(cat $FILE_SET|sed '1!D')"
     OPT_S2="$(cat $FILE_SET|sed '2!D')"
     OPT_S3="$(cat $FILE_SET|sed '3!D')"
+    OP_S4="$(cat $FILE_SET|sed '4!D')"
     OPT_C1="$(cat $FILE_COMP|sed '1!D')"
     OPT_C2="$(cat $FILE_COMP|sed '2!D')"
 
+    if [ "$OP_S4" = "size" ] ; then
+      OPT_S4="size!display!window"
+    elif [ "$OP_S4" = "window" ] ; then
+      OPT_S4="window!display!size"
+    else
+      OPT_S4="display!window!size"
+    fi
+
     yad --plug=12345 --tabnum=1 --form --text="Video capture options" \
-    --field "options video" --field sound:chk --field \
-    "options sound" "'$OPT_S1'"  "$OPT_S2" "'$OPT_S3'" | \
-    tr "|" "\n" | sed "s/'//g" &>$FILE_SET.tmp &
+    --field "options video" --field sound:chk --field "options sound" \
+    --field capture:cb "'$OPT_S1'"  "$OPT_S2" "'$OPT_S3'" \
+    "$OPT_S4" | tr "|" "\n" | sed "s/'//g" &>$FILE_SET.tmp &
 
     yad --plug=12345 --tabnum=2 --form --text="Options compress" --field \
     "" --field compress:chk "'$OPT_C1'" "$OPT_C2" | tr "|" "\n" | \
