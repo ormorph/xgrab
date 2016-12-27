@@ -34,6 +34,7 @@ OPT_CHECK2="$(cat $FILE_COMP|sed '2!D')"
 
 #Option x11 grab. Sound - pactl list short sources
 if [ $OPT_DISPL = "size" ] ; then
+	sleep 0.5s
 	INFO_DISP="$(xrectsel)"
 	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
 	WIN_XY=$(echo $INFO_DISP | grep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
@@ -44,6 +45,7 @@ if [ $OPT_DISPL = "size" ] ; then
 
         OPT_DISP="$DISPLAY+$WIN_XY"
 elif [ $OPT_DISPL = "window" ] ; then
+	sleep 0.5s
 	INFO_DISP="$(xwininfo|grep geometry)"
 	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
 	WIN_XY=$(echo $INFO_DISP | egrep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
