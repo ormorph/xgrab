@@ -39,9 +39,13 @@ if [ $OPT_DISPL = "size" ] ; then
 	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
 	WIN_XY=$(echo $INFO_DISP | grep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
 	TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
-	TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+	if [ $(($TARGET_WIDTH%2)) -eq 1 ] ; then
+		TARGET_WIDTH=$(($TARGET_WIDTH-1))
+	fi
 	TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
-	TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+	if [ $(($TARGET_HEIGHT%2)) -eq 1 ] ; then
+                TARGET_HEIGHT=$(($TARGET_HEIGHT-1))
+        fi
 
         OPT_DISP="$DISPLAY+$WIN_XY"
 elif [ $OPT_DISPL = "window" ] ; then
@@ -49,17 +53,25 @@ elif [ $OPT_DISPL = "window" ] ; then
 	INFO_DISP="$(xwininfo|grep geometry)"
 	SCR_SIZE=$(echo $INFO_DISP | grep -oE '[0-9]+x[0-9]+')
 	WIN_XY=$(echo $INFO_DISP | egrep -oE '\+[0-9]+\+[0-9]+' | grep -oE '[0-9]+\+[0-9]+'|tr "+" ",")
-        TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
-        TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+	TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
+        if [ $(($TARGET_WIDTH%2)) -eq 1 ] ; then
+                TARGET_WIDTH=$(($TARGET_WIDTH-1))
+        fi
         TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
-        TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+        if [ $(($TARGET_HEIGHT%2)) -eq 1 ] ; then
+                TARGET_HEIGHT=$(($TARGET_HEIGHT-1))
+        fi
 
         OPT_DISP="$DISPLAY+$WIN_XY"
 else 
-        TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
-        TARGET_WIDTH="${TARGET_WIDTH%[0-9]}0"
+	TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
+        if [ $(($TARGET_WIDTH%2)) -eq 1 ] ; then
+                TARGET_WIDTH=$(($TARGET_WIDTH-1))
+        fi
         TARGET_HEIGHT=$(echo ${SCR_SIZE//x/ } | awk '{print $2}')
-        TARGET_HEIGHT="${TARGET_HEIGHT%[0-9]}0"
+        if [ $(($TARGET_HEIGHT%2)) -eq 1 ] ; then
+                TARGET_HEIGHT=$(($TARGET_HEIGHT-1))
+        fi
 
 	OPT_DISP=$DISPLAY
 fi
