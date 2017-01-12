@@ -112,7 +112,7 @@ CONV(){
 	do
 		MASS=($file)
 
-	    if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then
+	    if  [ "${MASS[0]}" = 'Duration:' ] ; then
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
@@ -146,7 +146,7 @@ CONV2(){
 	do
 		MASS=($file)
 
-		if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then
+		if  [ "${MASS[0]}" = 'Duration:' ] ; then
 		DURATION="${MASS[1]:0:8}"
 		echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
