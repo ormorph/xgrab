@@ -153,20 +153,23 @@ CONV2(){
 	    fi
 
 	    if [[ "$file" =~ ^[A-Za-z0-9" "/=.+:]+time=+[A-Za-z0-9" "/=.+:]*$ ]] ;then
-		MASS=${file//*time=/}
-		MASS=(${MASS//./ })
-		TIME=$MASS
-		#TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
+		MASS=(${file//*q=/})
+		if [ $MASS != "0.0" ] ; then
+		    MASS=${file//*time=/}
+		    MASS=(${MASS//./ })
+		    TIME=$MASS
+		    #TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
 
-                HMS1=(${DURATION//:/ })
+                    HMS1=(${DURATION//:/ })
 
-        #Remove the first zero
-		HMS1=(${HMS1[@]#0})
+                #Remove the first zero
+	            HMS1=(${HMS1[@]#0})
 
-		#calculation percentage
-                SEK1=$((${HMS1[0]}*3600+${HMS1[1]}*60+${HMS1[2]}))
-                PERCENT=$(($TIME*100/$SEK1))
-                echo "$(($PERCENT))"
+		    #calculation percentage
+                    SEK1=$((${HMS1[0]}*3600+${HMS1[1]}*60+${HMS1[2]}))
+                    PERCENT=$(($TIME*100/$SEK1))
+                    echo "$(($PERCENT))"
+                fi
 	    fi
 	done
 }
