@@ -17,7 +17,7 @@ do
 	if [ -n "$(echo ${MASS[1]}|egrep '\*\+')" ] ; then
 		SCR_SIZE="${MASS[0]}"
 	fi
-done <<<"$(xrandr --current)" 
+done <<<"$(xrandr --current)"
 
 #Generated random a name
 NAME="$(tr -cd [:digit:] < /dev/urandom | head -c8)"
@@ -63,7 +63,7 @@ elif [ $OPT_DISPL = "window" ] ; then
         fi
 
         OPT_DISP="$DISPLAY+$WIN_XY"
-else 
+else
 	TARGET_WIDTH=$(echo ${SCR_SIZE//x/ } | awk '{print $1}')
         if [ $(($TARGET_WIDTH%2)) -eq 1 ] ; then
                 TARGET_WIDTH=$(($TARGET_WIDTH-1))
@@ -79,7 +79,7 @@ fi
 OPT_DEC="${OPT_DEC//TARGET_WIDTH/$TARGET_WIDTH}"
 OPT_DEC="${OPT_DEC//TARGET_HEIGHT/$TARGET_HEIGHT}"
 
-if [ "$OPT_CHECK1" = "TRUE" ] ; then 
+if [ "$OPT_CHECK1" = "TRUE" ] ; then
         OPTION_GRAB="$OPT_SOUND ${OPT_GRAB//\$SCR_SIZE/$SCR_SIZE}"
 	OPTION_GRAB="${OPTION_GRAB//\$DISPLAY/$OPT_DISP}"
 else
@@ -112,21 +112,24 @@ CONV(){
 	do
 		MASS=($file)
 
-	    if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then 
+	    if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
-	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
-		TIME="$(echo $file | egrep -oE  '+[0-9]+:+[0-9]+:+[0-9][0-9]')"
-		echo "# The compression process takes $DURATION"
+	    if [[ "$file" =~ ^[A-Za-z0-9" "/=.+:]+time=+[A-Za-z0-9" "/=.+:]*$ ]] ;then
+		MASS=${file//*time=/}
+		MASS=(${MASS//./ })
+  		TIME=$MASS
+		#TIME="$(echo $file | egrep -oE  '+[0-9]+:+[0-9]+:+[0-9][0-9]')"
+	  	echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 
                 HMS1=(${DURATION//:/ })
-		HMS2=(${TIME//:/ })
+                HMS2=(${TIME//:/ })
 
-		#Remove the first zero
-		HMS1=(${HMS1[@]#0})
-		HMS2=(${HMS2[@]#0})
+	  	#Remove the first zero
+	  	HMS1=(${HMS1[@]#0})
+                HMS2=(${HMS2[@]#0})
 
 		#calculation percentage
                 SEK1=$((${HMS1[0]}*3600+${HMS1[1]}*60+${HMS1[2]}))
@@ -134,7 +137,7 @@ CONV(){
                 PERCENT=$(($SEK2*100/$SEK1))
                 echo "$(($PERCENT))"
 	    fi
-	done 
+	done
 }
 
 # avconv stream processing function
@@ -143,18 +146,21 @@ CONV2(){
 	do
 		MASS=($file)
 
-		if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then 
+		if  [ -n "$(echo ${MASS[0]}|egrep Duration)" ] ; then
 		DURATION="${MASS[1]:0:8}"
 		echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 	    fi
 
-	    if [ -n "$(echo "$file"|egrep "time=")" ] ; then
-		TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
+	    if [[ "$file" =~ ^[A-Za-z0-9" "/=.+:]+time=+[A-Za-z0-9" "/=.+:]*$ ]] ;then
+		MASS=${file//*time=/}
+		MASS=(${MASS//./ })
+		TIME=$MASS
+		#TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
 
                 HMS1=(${DURATION//:/ })
 
-		#Remove the first zero
+        #Remove the first zero
 		HMS1=(${HMS1[@]#0})
 
 		#calculation percentage
@@ -162,7 +168,7 @@ CONV2(){
                 PERCENT=$(($TIME*100/$SEK1))
                 echo "$(($PERCENT))"
 	    fi
-	done 
+	done
 }
 
 
@@ -177,7 +183,7 @@ process(){
 	echo "100"
 }
 
-if [ "$OPT_CHECK2" = "TRUE" ] ; then 
+if [ "$OPT_CHECK2" = "TRUE" ] ; then
 	process|yad --progress \
 	--auto-close \
 	--title="videofile processing" \
