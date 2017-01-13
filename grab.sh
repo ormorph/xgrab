@@ -116,7 +116,7 @@ CONV(){
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
-	    if [[ "$file" =~ ^[A-Za-z0-9" "/=.+:]+time=+[A-Za-z0-9" "/=.+:]*$ ]] ;then
+	    if [[ "$file" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
 		MASS=${file//*time=/}
 		MASS=(${MASS//./ })
   		TIME=$MASS
@@ -152,7 +152,7 @@ CONV2(){
                 echo "# The compression process takes $DURATION"
 	    fi
 
-	    if [[ "$file" =~ ^[A-Za-z0-9" "/=.+:]+time=+[A-Za-z0-9" "/=.+:]*$ ]] ;then
+	    if [[ "$file" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
 		MASS=(${file//*q=/})
 		if [ $MASS != "0.0" ] ; then
 		    MASS=${file//*time=/}
