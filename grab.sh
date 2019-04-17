@@ -20,7 +20,7 @@ do
 done <<<"$(xrandr --current)"
 
 #Generated random a name
-NAME="$(tr -cd [:digit:] < /dev/urandom | head -c8)"
+NAME="$(date +%s-%d-%m-%Y)"
 FILE="VID_$NAME"
 
 
