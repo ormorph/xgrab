@@ -11,9 +11,9 @@ if ! [ -d "$OUTDIR" ] ; then
 fi
 
 #Defines the current screen resolution:
-while read file
+while read xrandr_out
 do
-	MASS=($file)
+	MASS=($xrandr_out)
 	if [ -n "$(echo ${MASS[1]}|egrep '\*\+')" ] ; then
 		SCR_SIZE="${MASS[0]}"
 	fi
@@ -108,19 +108,18 @@ rm $PIPE.pid
 COMMAND_COMP="$COMMAND -i $OUTDIR/$NAME.mp4 $OPT_DEC  $OUTDIR/$FILE.mp4"
 
 CONV(){
-	$COMMAND_COMP 2>&1 |stdbuf -o0 tr '\r' '\n' | while read file
+	$COMMAND_COMP 2>&1 |stdbuf -o0 tr '\r' '\n' | while read video_out
 	do
-		MASS=($file)
+		MASS=($video_out)
 
 	    if  [ "${MASS[0]}" = 'Duration:' ] ; then
 		    DURATION="${MASS[1]:0:8}"
 	    fi
 
-	    if [[ "$file" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
-		MASS=${file//*time=/}
+	    if [[ "$video_out" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
+		MASS=${video_out//*time=/}
 		MASS=(${MASS//./ })
   		TIME=$MASS
-		#TIME="$(echo $file | egrep -oE  '+[0-9]+:+[0-9]+:+[0-9][0-9]')"
 	  	echo "# The compression process takes $DURATION"
                 echo "# The compression process takes $DURATION"
 
@@ -142,9 +141,9 @@ CONV(){
 
 # avconv stream processing function
 CONV2(){
-	$COMMAND_COMP  2>&1| stdbuf -o0 tr '\r' '\n' | while read file
+	$COMMAND_COMP  2>&1| stdbuf -o0 tr '\r' '\n' | while read video_out
 	do
-		MASS=($file)
+		MASS=($video_out)
 
 		if  [ "${MASS[0]}" = 'Duration:' ] ; then
 		DURATION="${MASS[1]:0:8}"
@@ -152,13 +151,12 @@ CONV2(){
                 echo "# The compression process takes $DURATION"
 	    fi
 
-	    if [[ "$file" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
-		MASS=(${file//*q=/})
+	    if [[ "$video_out" =~ ^[[:print:]]+time=+[[:print:]]*$ ]] ;then
+		MASS=(${video_out//*q=/})
 		if [ $MASS != "0.0" ] ; then
-		    MASS=${file//*time=/}
+		    MASS=${video_out//*time=/}
 		    MASS=(${MASS//./ })
 		    TIME=$MASS
-		    #TIME=$(echo $file | egrep -oE 'time=+[0-9]+'|egrep -oE '[0-9]+')
 
                     HMS1=(${DURATION//:/ })
 
